@@ -1,0 +1,229 @@
+---
+title: "Homework 1: Insights on Poverty and Vaccines"
+date: "October 7, 2022"
+output: html_document
+---
+
+# Part 1
+
+This HW is based on Hans Rosling talks [New Insights on Poverty](https://www.ted.com/talks/hans_rosling_reveals_new_insights_on_poverty?language=en) and [The Best Stats You've Ever Seen](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen). 
+
+The assignment uses data to answer specific question about global health and economics. The data contradicts commonly held preconceived notions. For example, Hans Rosling starts his talk by asking: (paraphrased) "for each of the six pairs of countries below, which country do you think had the highest child mortality in 2015?" 
+
+1. Sri Lanka or Turkey
+2. Poland or South Korea
+3. Malaysia or Russia
+4. Pakistan or Vietnam
+5. Thailand or South Africa
+
+Most people get them wrong. Why is this? In part it is due to our preconceived notion that the world is divided into two groups: the _Western world_ versus the _third world_, characterized by "long life, small family" and "short life, large family" respectively. In this homework we will use data visualization to gain insights on this topic.  
+
+# Problem 1
+
+The first step in our analysis is to download and organize the data. The necessary data to answer these question is available on the [gapminder](http://www.gapminder.org/data/) website. 
+
+## Problem 1.1
+
+We will use the following datasets:
+
+* [Childhood mortality](https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ0pd-JR83BV0sRGCkVmuPHkmkDZBnwlBIO8aWt-tPLL9wgZdaRHWITXSaS7SSunW5FV6CW-K-4noD/pub?gid=359163185&single=true&output=csv)
+* [Life expectancy](https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8G4xotzl3qIctMCGhxIu8sj02glKpJV98mxQAtjRPwbKTYbFN5oiewvzBrspry5YzViztos6LuQsI/pub?gid=1695698977&single=true&output=csv)
+* [Fertility](https://docs.google.com/spreadsheets/d/e/2PACX-1vRV2cxh04jWdbKZt_0IHWRESOPuCBCHXZP47crLTMgGs6mWHe-CEucE-Qhfrvl91UKmJj26rFM8H3Dt/pub?gid=2110541729&single=true&output=csv)
+* [Population](https://docs.google.com/spreadsheets/d/e/2PACX-1vRVFgE9g9E6153sozae73CPKbz0OEtjAUBspVuCaK-5LfBsQbaKkrAAqaMV4Dvz4Noxa7fsNwAJf8du/pub?gid=1008305493&single=true&output=csv)
+
+Create four `tbl_df` table objects, one for each of the tables provided in the above files. Hints: Use the `read_csv` function. Because these are only temporary files, give them short names.
+
+```{r}
+#your code here
+```
+
+## Problem 1.2
+
+ Write a function called `my_func` that takes a table as an argument and returns the first 5 column names. For each of the four tables, print out the first 5 column names.
+
+```{r}
+#your code here
+```
+
+## Problem 1.3 
+
+Notice that in these tables, years are represented by columns. We want to create tidy datasets in which each row is a country/year pair, and our value of interest is a column.
+
+We call this the _long_ format. Use the `pivot_longer` function from the `tidyr` package to create a new table for childhood mortality using the long format. Call the new columns `year` and `child_mortality`.
+
+```{r}
+#your code here
+```
+
+Now restructure the remaining tables in this way.
+
+```{r}
+#your code here
+```
+
+## Problem 1.4
+
+Now we want to join all these files together. Make one consolidated table containing all the columns.
+
+```{r}
+#your code here
+```
+
+## Problem 1.6
+
+Add a column to the consolidated table containing the continent for each country. Hint: We have created a file that maps countries to continents [here](https://github.com/datasciencelabs/data/blob/master/homework_data/continent-info.tsv). Hint: Learn to use the `left_join` function.
+
+```{r}
+#your code here
+```
+
+# Problem 2
+
+To examine if in fact there was a long-life-in-a-small-family and short-life-in-a-large-family dichotomy, we will visualize the average number of children per family (fertility) and the life expectancy for each country.
+
+## Problem 2.1 
+
+Use `ggplot2` to create a plot of life expectancy versus fertility for 1962 for Africa, Asia, Europe, and the Americas. Use color to denote continent and point size to denote population size:
+
+```{r}
+#your code here
+```
+
+Do you see a dichotomy? Explain.
+
+## Problem 2.2
+
+Now we will annotate the plot to show different types of countries. 
+
+Learn about OECD and OPEC. Add a couple of columns to your consolidated tables containing a logical vector that tells if a country is OECD and OPEC respectively. 
+
+```{r}
+#your code here
+```
+
+### Problem 2.3
+
+Make the same plot as in Problem 3.1, but this time use color to annotate the OECD countries and OPEC countries. For countries that are not part of these two organization annotate if they are from Africa, Asia, or the Americas.
+
+```{r}
+#your code here
+```
+
+How would you describe the dichotomy?
+
+### Problem 2.4
+
+Explore how this figure changes across time. Show us 4 figures that demonstrate how this figure changes through time.
+
+```{r}
+#your code here
+```
+
+Would you say that the same dichotomy exists today? Explain:
+
+# Problem 3
+Having time as a third dimension made it somewhat difficult to see specific country trends. Let's now focus on specific countries.
+
+## Problem 3.1
+Let's compare France and its former colony Tunisia. Make a plot of fertility versus year with color denoting the country. Do the same for life expectancy. How would you compare Tunisia's improvement compared to France's in the past 60 years? Hint: use `geom_line`.
+ 
+```{r}
+#your code here
+```
+
+## Problem 3.2
+
+Do the same, but this time compare Vietnam to the OECD countries. Use one color for Vietnam, and another color for all the other OECD countries.
+
+```{r}
+#your code here
+```
+
+## Problem 3.3
+
+Write a paragraph about the fertility and life expectancy trends that you see in the graphs you created for Problems 3.1 and 3.2. Your paragraphs should address the following questions: 
+How do the trends change over time in France and Tunisia? 
+How do they change in Vietnam, particularly related to the OECD countries? 
+How do the two approaches to graphing in these two problems help you see trends that you could not see in the graphs from the Problem 2 set?  
+
+# Part 2
+
+Vaccines have helped save millions of lives. In the 19th century, before herd immunization was achieved through vaccination programs, deaths from infectious diseases, like smallpox and polio, were common. However, today, despite all the scientific evidence for their importance, vaccination programs have become somewhat controversial.
+
+The controversy started with a [paper](http://www.thelancet.com/journals/lancet/article/PIIS0140-6736(97)11096-0/abstract) published in 1988 and lead by [Andrew Wakefield](https://en.wikipedia.org/wiki/Andrew_Wakefield) claiming there was a link between the administration of the measles, mumps and rubella (MMR) vaccine, and the appearance of autism and bowel disease. 
+
+Despite much science contradicting this finding, sensationalists media reports and fear mongering from conspiracy theorists, led parts of the public to believe that vaccines were harmful. Some parents stopped vaccinating their children. This dangerous practice can be potentially disastrous given that the Center for Disease Control (CDC) estimates that vaccinations will prevent more than 21 million hospitalizations and 732,000 deaths among children born in the last 20 years (see [Benefits from Immunization during the Vaccines for Children Program Era — United States, 1994-2013, MMWR](https://www.cdc.gov/mmwr/preview/mmwrhtml/mm6316a4.htm)). 
+
+Effective communication of data is a strong antidote to misinformation and fear mongering. In this homework you are going to prepare information to have ready in case you need to help a family member, friend or acquaintance that is not aware of the positive impact vaccines have had for public health.
+
+The data used for these plots were collected, organized and distributed by the [Tycho Project](http://www.tycho.pitt.edu/). They include weekly reported counts data for seven diseases from 1928 to 2011, from all fifty states. We include the yearly totals in the `dslabs` package:
+
+```{r}
+library(dslabs)
+data(us_contagious_diseases)
+```
+
+1. Use the `us_contagious_disease` and `dplyr` tools to create an object called `dat` that stores only the Measles data, includes a per 100,000 people rate, and removes Alaska and Hawaii since they only became states in the late 50s. Note that there is a `weeks_reporting` column. Take that into account when computing the rate.
+
+```{r}
+#your code here
+```
+
+2. Plot the Measles disease rates per year for California. Find out when the Measles vaccine was introduced and add a vertical line to the plot to show this year.   
+
+```{r}
+#your code here
+```
+
+What trend do you see in the graph? 
+How does the vertical line help us draw conclusions from the graph?
+
+3. Note these rates start off as counts. For larger counts we can expect more variability. There are statistical explanations for this which we don't discuss here. But transforming the data might help stabilize the variability such that it is closer across levels. For 1950, 1960, and 1970, plot the histogram of the data across states with and without the square root transformation. Which seems to have more similar variability across years? Make sure to pick binwidths that result in informative plots. 
+
+```{r}
+#your code here
+```
+
+What do the histograms tell us about measles rates across the U.S. over time? 
+How does the square root transformation effect the histograms? 
+What is the advantage of the histograms with the square root transformation?   
+
+4. Plot the Measles disease rates per year for California. Use the the square root transformation. Make sure that the numbers $$0,4,16,36, \dots, 100$$ appear on the y-axis.
+Find out when the Measles vaccine was introduced and add a vertical line to the plot to show this year:
+
+```{r}
+#your code here
+```
+
+How does the square root transformation change the graphs? 
+Do you think the square root transformation helps with the trend, makes it harder to interpret, or makes no difference? Explain your choice. 
+
+5. Now, this is just California. Does the pattern hold for other states? Use boxplots, with year on the x-axis and rates on the y-axis, to get an idea of the distribution of rates for each year, and see if the pattern holds across states.
+
+```{r}
+#your code here
+```
+
+Describe the trend do you see in the boxplots and how this relates to measles infection rates relative to the introduction of the vaccine. 
+How does the trend for all of the states compare to the trend for California?  
+How are the boxplots helpful in providing additional information about measles infection rates over time? 
+
+6. One problem with the boxplot is that it does not let us see state-specific trends. Make a plot showing the trends for all states, using `geom_line` to display each state's trend in gray. Add the US average to the plot, also with `geom_line`, in black. Hint: Note there are missing values in the data.
+
+```{r}
+#your code here
+```
+
+Describe the trend you see in your line plot. 
+What are the advantages and disadvantages of this type of plot? 
+
+7. One problem with the plot above is that we can't distinguish states from each other. There are just too many. We have three variables to show: year, state, and rate. If we use the two dimensions to show year and state, then we need something other than vertical or horizontal position to show the rates. Try using color. Hint: Use the the geometry `geom_tile` to tile the plot with colors representing disease rates. 
+
+```{r}
+#your code here
+```
+
+Describe the trend you see in this plot. Focus on what this plot can show you could not see in the previous plots. 
+Why do you think there is so much missing data after 1980? 
+
+8. Write a summary of your findings from this part of the homework. If you had a family member ask you about the efficacy of vaccines how would this analysis help you answer those questions? The summary should be approximately one paragraph and reference several of the plots you made. 
