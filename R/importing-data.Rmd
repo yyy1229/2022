@@ -1,12 +1,17 @@
+
+https://rafalab.github.io/dsbook/importing-data.html
+
 # Importing data {#importing-data}
 
 ```{r, echo=FALSE}
 img_path <- "R/img"
+img_path
 ```
  
 
 ```{r, echo=FALSE}
 knitr::include_graphics(file.path(img_path,"csv-file.png"))
+
 ```
 
 
@@ -17,6 +22,10 @@ filename <- "murders.csv"
 dir <- system.file("extdata", package = "dslabs") 
 fullpath <- file.path(dir, filename)
 file.copy(fullpath, "murders.csv")
+fullpath
+dir
+?file.path
+?file.copy
 ```
 
 
@@ -43,6 +52,7 @@ list.files(path = dir)
 
 ```{r, eval=FALSE}
 wd <- getwd()
+wd
 ```
 
 ### Generating path names
@@ -90,6 +100,7 @@ file.copy(fullpath, "murders.csv")
 
 
 ### readr
+The readr library includes functions for reading data stored in text file spreadsheets into R. readr is part of the tidyverse package, or you can load it directly
 
 ```{r, warning=FALSE, message=FALSE}
 library(readr)
@@ -115,6 +126,7 @@ read_lines("murders.csv", n_max = 3)
 ```{r, message}
 dat <- read_csv(filename)
 ```
+Note that we receive a message letting us know what data types were used for each column. Also note that dat is a tibble, not just a data frame. This
 
 ```{r, eval=FALSE}
 View(dat)
@@ -149,10 +161,37 @@ The package provides functions to read-in Microsoft Excel formats:
 path <- system.file("extdata", package = "dslabs")
 files <- list.files(path)
 files
+
+
+
+# 
+ dlb<- list.files(path, pattern = ".csv")%>%
+   # map_df(~read_csv(file.path(path,.)))
+    map(~read_csv(file.path(path,.)))
+
+ 
+
+????????
 ```
+```{r}
+
+temp = list.files(path,pattern="*.csv")
+for (i in 1:length(temp)) assign(gsub(".csv","",temp[i]), read.csv(file.path(path,temp[i])))
+
+```
+
 
   
 2\. Note that the last one, the `olive` file, gives us a warning. This is because the first line of the file is missing the header for the first column. 
+
+```{r}
+???
+read_lines(file.path(path,"olive.csv"), n_max = 3)
+ dlb<- list.files(path, pattern = ".csv")%>%
+   # map_df(~read_csv(file.path(path,.)))
+    map(~read_csv(file.path(path,.),name_repair="universal"))
+
+```
 
 Read the help file for `read_csv` to figure out how to read in the file without reading this header. If you skip the header, you should not get this warning. Save the result to an object called `dat`.
 
@@ -161,6 +200,7 @@ Read the help file for `read_csv` to figure out how to read in the file without 
 
 ```{r, eval=FALSE}
 names(dat)
+
 ```
 
 to see that the names are not informative.
@@ -176,8 +216,8 @@ url <-
 ```
 
 ```{r, eval=FALSE}
-url <- "https://raw.githubusercontent.com/rafalab/dslabs/master/inst/
-extdata/murders.csv"
+url <- 
+"https://raw.githubusercontent.com/rafalab/dslabs/master/inst/extdata/murders.csv"
 ```
 
 
@@ -198,7 +238,7 @@ file.remove(tmp_filename)
 ```
 
 ## R-base importing functions
-
+An often useful R-base importing function is scan, as it provides much flexibility. When reading in spreadsheets many things can go wrong. The file might have a multiline header, be missing cells, or it might use an unexpected encoding17. We recommend you read this post about common issues found here: https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/.
 ```{r}
 dat2 <- read.csv(filename)
 ```

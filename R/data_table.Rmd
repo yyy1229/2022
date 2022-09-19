@@ -1,5 +1,4 @@
 # data.table {#data.table}
-
 I
 
 ## Manipulating data tables
@@ -13,16 +12,19 @@ library(data.table)
 ```{r, echo=FALSE}
 library(dslabs)
 data(murders)
+murders
 ```
 
 ```{r}
 murders <-setDT(murders)
+murders
 ```
 
 
 ### Selecting 
 
 ```{r, eval=FALSE}
+library(tidyverse)
 select(murders, state, region)
 ```
 
@@ -35,7 +37,7 @@ murders[, c("state", "region")] |> head()
 We can also use the `.()`  __data.table__ notation to alert R that variables inside the parenthesis are column names, not objects in the R environment. So the above can also be written like this:
 
 
-
+We can also use the .() data.table notation to alert R that variables inside the parenthesis are column names, not objects in the R environment. So the above can also be written like this:
 ```{r}
 murders[, .(state, region)] |> head()
 ```
@@ -45,6 +47,7 @@ murders[, .(state, region)] |> head()
 
 __data.table__ uses an approach that avoids a new assignment (update by reference). This can help with large datasets that take up most of your computer's memory. The __data.table__ :=` function permits us to do this:
   
+
 ```{r, message=FALSE}
 murders[, rate := total / population * 100000]
 ```
@@ -147,6 +150,11 @@ Add a murders column named `rate` with the per 100,000 murder rate as in the exa
 
 2\. Add a column `rank` containing the rank, from highest to lowest murder rate. 
 
+```{r}
+murders[,":="(rate= total / population * 100000)]
+murders[,rank:=rank(-rate)]
+
+```
 
 3\. If we want to only show the states and population sizes, we can use:
 
@@ -155,6 +163,9 @@ murders[, .(state, population)]
 ```
 
 Show the state names and abbreviations in `murders`. 
+```{r}
+murders[,.(state,abb)]
+```
 
 4\. You can show just the New York row like this:
 
@@ -175,6 +186,9 @@ no_florida <- murders[state != "Florida"]
 
 Create a new data frame called `no_south` that removes states from the South region. How many states are in this category? You can use the function `nrow` for this.
 
+```{r}
+
+```
 
 6\. We can also use `%in%` to filter. You can therefore see the data from New York and Texas as follows:
 
@@ -294,6 +308,10 @@ data(NHANES)
 
 1\. We will provide some basic facts about blood pressure. First let's select a group to set the standard. We will use 20-to-29-year-old females. `AgeDecade` is a categorical variable with these ages. Note that the category is coded like " 20-29", with a space in front! Use the __data.table__ package to compute the average and standard deviation of systolic blood pressure as saved in the `BPSysAve` variable. Save it to a variable called `ref`.
 
+```{r}
+NHANES<-setDT(NHANES)
+NHANES[AgeDecade==" 20-29",.(average = mean(BPSysAve,na.rm=TRUE),sd=sd(BPSysAve,na.rm=TRUE)]
+```
 
 
 2\. Report the min and max values for the same group.
