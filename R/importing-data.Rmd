@@ -24,6 +24,7 @@ fullpath <- file.path(dir, filename)
 file.copy(fullpath, "murders.csv")
 fullpath
 dir
+list.files(dir)
 ?file.path
 ?file.copy
 ```
@@ -31,6 +32,8 @@ dir
 
 ```{r, eval=FALSE}
 library(tidyverse)
+getwd()
+
 dat <- read_csv(filename)
 ```
 

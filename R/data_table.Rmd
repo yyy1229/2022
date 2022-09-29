@@ -278,6 +278,7 @@ heights[, .(average = mean(height), standard_deviation = sd(height)), by = sex]
 We can order rows using the same approach we use for filter. Here are the states ordered by murder rate:
 
 ```{r}
+murders
 murders[order(population)] |> head()
 ```
 

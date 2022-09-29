@@ -32,10 +32,12 @@ library(tidyr)
 library(dplyr)
 library(dslabs)
 library(rvest)
+library(data.table)
 data(gapminder)
 
 df <- gapminder
 
+head(df)
 ```
 
 
@@ -49,6 +51,8 @@ We can use the `filter()` function to select rows according to values of a colum
 
 We can also order a data frame using `arrange()`
 
+
+
 ##### 1) Create a data frame called `df2` that is ordered so that it shows the data for each country (all years), then the next country (all years), etc.
 
 ##### 2) Create a data frame called `algeriagdp` that includes only year and GDP data for Algeria.
@@ -57,12 +61,22 @@ We can also order a data frame using `arrange()`
 
 ```{r}
 #1
-
+df2<-
+  df|>
+  arrange(country)
+df<-setDT(df)
+df[order(country)]
 
 #2
 
-
+algeriagdp<-
+  df|>
+  filter(country=="Algeria")|>
+  select(year,gdp)
+ algeriagdp 
 #3
+df[country=="Algeria",.(year,gdp)]
+
 
 
 ```
@@ -73,6 +87,7 @@ The `which()` function returns the index of rows in a data frame that meet a cer
 
 ```{r}
 which(gapminder$country == "Algeria")
+
 ```
 
 We can use this to select rows within our data frame by using brackets `[ ]` and placing our `which()` function where we would place the row number.
@@ -87,11 +102,13 @@ head(gapminder[which(gapminder$country == "Algeria"), "infant_mortality"])
 We can also use this to change the values of specific rows or cells. For example, Swaziland recently changed the country name to Eswatini. If we want to make this change, we can do the following:
 
 ```{r}
+class(gapminder$country)
 gapminder$country = as.character(gapminder$country)
 
 gapminder$country[gapminder$country == "Swaziland"] = "Eswatini"
 
 gapminder$country = as.factor(gapminder$country)
+
 ```
 
 

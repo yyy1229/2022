@@ -530,21 +530,29 @@ compute_s_n <- function(n){
 }
 n <- 1:25
 s_n <- sapply(n, compute_s_n)
+s_n
+class(s_n)
+
 ```
 
 ```{r}
 library(purrr)
 s_n <- map(n, compute_s_n)
 class(s_n)
+s_n
 ```
 
 ```{r}
+#return a vetor
 s_n <- map_dbl(n, compute_s_n)
 class(s_n)
+s_n[1]
 ```
 
 ```{r, eval=FALSE}
+#return a data frame
 s_n <- map_df(n, compute_s_n)
+
 ```
 
 We need to change the function to make this work:
@@ -555,6 +563,7 @@ compute_s_n <- function(n){
   tibble(sum = sum(x))
 }
 s_n <- map_df(n, compute_s_n)
+s_n
 ```
 
 ## Tidyverse conditionals
@@ -583,9 +592,20 @@ murders |>
 
 
 ```{r, eval=FALSE}
+a=0
+b=1
 x >= a & x <= b
 ```
+between is equivalent to lower<=x & x<=upper when incbounds=TRUE, or lower<x & y<upper when FALSE. With a caveat that NA in lower or upper are taken as unlimited bounds not NA. This can be changed by setting NAbounds to NA.
 
+inrange checks whether each value in x is in between any of the intervals provided in lower,upper.
+
+Usage
+between(x, lower, upper, incbounds=TRUE, NAbounds=TRUE, check=FALSE)
+x %between% y
+
+inrange(x, lower, upper, incbounds=TRUE)
+x %inrange% y
 
 ```{r, eval = FALSE}
 between(x, a, b)
