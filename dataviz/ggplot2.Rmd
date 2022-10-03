@@ -142,6 +142,7 @@ p + geom_point(aes(population/10^6, total), size = 3) +
 
 
 ```{r ggplot-example-6}
+#!!!!!!
 p + geom_point(aes(population/10^6, total), size = 3) +
   geom_text(aes(population/10^6, total, label = abb), nudge_x = 1.5)
 ```
@@ -216,6 +217,7 @@ p <-  murders |> ggplot(aes(population/10^6, total, label = abb)) +
   xlab("Populations in millions (log scale)") + 
   ylab("Total number of murders (log scale)") +
   ggtitle("US Gun Murders in 2010")
+p
 ```
 
 
@@ -233,6 +235,7 @@ p + geom_point(aes(col=region), size = 3)
 r <- murders |> 
   summarize(rate = sum(total) /  sum(population) * 10^6) |> 
   pull(rate)
+r
 ```
 
 Add intercept
@@ -247,11 +250,15 @@ change color
 ```{r}
 p <- p + geom_abline(intercept = log10(r), lty = 2, color = "darkgrey") +
   geom_point(aes(col=region), size = 3)  
+p
 ```
+
+lty = 2,=linetype=2,
 
 
 ```{r}
 p <- p + scale_color_discrete(name = "Region") 
+p
 ```
 
 ## Add-on packages {#add-on-packages}
@@ -260,6 +267,8 @@ p <- p + scale_color_discrete(name = "Region")
 ds_theme_set()
 ```
 
+
+legend on the top
 ```{r, eval = FALSE}
 library(ggthemes)
 p + theme_economist()
@@ -272,7 +281,7 @@ library(ggthemes)
 p + theme_fivethirtyeight()
 ```
 
-
+!!!!!!!!!
 The add-on package __ggrepel__ includes a geometry that adds labels while ensuring that they don't fall on top of each other. We simply change `geom_text` with `geom_text_repel`.
 
 ## Putting it all together
@@ -324,7 +333,7 @@ data.frame(x = x, y = y) |>
 qplot(x, y)
 ```
 
-
+!!
 ## Grids of plots
 
 
@@ -364,6 +373,7 @@ and we can also use the pipe:
 
 ```{r, eval = FALSE}
 p <- murders |> ggplot()
+class()
 ```
 
 What is class of the object `p`?
@@ -377,6 +387,9 @@ b. A blank slate plot.
 c. A scatterplot.
 d. A histogram.
 
+```{r}
+print(p)
+```
 
 3\. Using the pipe `|>`, create an object `p` but this time associated with the `heights` dataset instead of the `murders` dataset. 
 
@@ -427,6 +440,7 @@ b. We need to let `geom_label` know what character to use in the plot.
 c. The `geom_label` geometry does not require  x-axis and y-axis values.
 d. `geom_label` is not a ggplot2 command.
 
+A
 
 9\. Rewrite the code above to use abbreviation as the label through `aes`
 
@@ -439,7 +453,10 @@ c. Use the `color` argument in `ggplot`.
 d. Because we want all colors to be blue, we do not need to map colors, just use the color argument in `geom_label`.
 
 
+D
+
 11\. Rewrite the code above to make the labels blue.
+
 
 
 12\. Now suppose we want to use color to represent the different regions. In this case which of the following is most appropriate:
@@ -449,6 +466,7 @@ b. Because each label needs a different color we map the colors through the colo
 c. Use the `color` argument in `ggplot`.
 d. Because we want all colors to be blue, we do not need to map colors, just use the color argument in `geom_label`.
 
+C
 
 13\. Rewrite the code above to make the labels' color be determined by the state's region.
 

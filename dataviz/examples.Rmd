@@ -38,6 +38,16 @@ Show a scatterplot for two years and each continent separately.
 filter(gapminder, year%in%c(1962, 2012)) |>
   ggplot(aes(fertility, life_expectancy, col = continent)) +
   geom_point() +
+  facet_grid(~year)
+
+filter(gapminder, year%in%c(1962, 2012)) |>
+  ggplot(aes(fertility, life_expectancy, col = continent)) +
+  geom_point() +
+  facet_grid(year~.)
+
+filter(gapminder, year%in%c(1962, 2012)) |>
+  ggplot(aes(fertility, life_expectancy, col = continent)) +
+  geom_point() +
   facet_grid(year~continent)
 ```
 
@@ -149,6 +159,19 @@ gapminder |>
   ggplot(aes(year, life_expectancy, col = country, label = country)) +
   geom_textpath() +
   theme(legend.position = "none")
+
+gapminder |> 
+  filter(country %in% countries) |> 
+  ggplot(aes(year, life_expectancy, col = country, label = country)) +
+  geom_line()
+
+
+
+gapminder |> 
+  filter(country %in% countries) |> 
+  ggplot(aes(year, life_expectancy, col = country, label = country)) +
+  geom_textpath() 
+
 ```
 
 
