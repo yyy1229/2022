@@ -1,0 +1,511 @@
+---
+title: "Models"
+author: "Rafael A. Irizarry"
+date: "`r lubridate::today()`"
+output:
+  ioslides_presentation:
+    fig_caption: no
+    fig_height: 5
+    fig_width: 7
+    out_width: "70%"
+  beamer_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(dslabs)
+library(gridExtra)
+library(ggthemes)
+ds_theme_set()
+options(digits = 3)
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  cache = TRUE,
+  out.width = "70%",
+  fig.align = 'center',
+  fig.width = 6,
+  fig.asp = 0.618,  # 1 / phi
+  fig.show = "hold"
+)
+img_path <- "img"
+```
+
+## Introduction
+
+Let's start by looking at the data from the contest:
+
+```{r, eval=FALSE}
+dat <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRMVT2B6_oOQiUgoYrf2wevSCgr618BU_IuR8C4qKRXjQu0mjkO4qHBPjyZMk2tRChCKJTLggLEorvP/pub?output=csv")
+```
+
+## Statistical models
+
+>> "All models are wrong, but some are useful." --George E. P. Box
+
+## Statistical models
+
+-   The day before the 2008 presidential election, FiveThirtyEight stated that
+
+>> Barack Obama appears poised for a decisive electoral victory.
+
+-   They went further and predicted that Obama would win the election with 349 electoral votes to 189, and the popular vote by a margin of 6.1%.
+
+-   FiveThirtyEight also attached a probabilistic statement to their prediction claiming that Obama had a 91% chance of winning the election.
+
+-   The predictions were quite accurate since, in the final results, Obama won the electoral college 365 to 173 and the popular vote by a 7.2% difference.
+
+## Statistical models
+
+-   Four years later, the week before the 2012 presidential election, FiveThirtyEight was giving Obama a 90% chance of winning despite many of the experts thinking the final results would be closer.
+
+-   Political commentator Joe Scarborough said during his [show](https://www.youtube.com/watch?v=TbKkjm-gheY):
+
+>> Anybody that thinks that this race is anything but a toss-up right now is such an ideologue ... they're jokes.
+
+-   To which Nate Silver responded via Twitter:
+
+>> If you think it's a toss-up, let's bet. If Obama wins, you donate \$1,000 to the American Red Cross. If Romney wins, I do. Deal?
+
+## Statistical models
+
+-   In 2016, Silver was not as certain and gave Hillary Clinton only a 71% of winning.
+
+-   In contrast, most other forecasters were almost certain she would win.
+
+-   She lost.
+
+-   But 71% is still more than 50%, so was Mr. Silver wrong? And what does probability mean in this context anyway? Are dice being tossed somewhere?
+
+## Statistical models
+
+-   We will demonstrate how *poll aggregators*, such as FiveThirtyEight, collected and combined data reported by different experts to produce improved predictions.
+
+-   We introduce ideas behind the *statistical models*, also known as *probability models*, that were used by poll aggregators to improve election forecasts beyond the power of individual polls.
+
+## Statistical models
+
+-   We motivate the models building on the statistical inference concepts we learned.
+
+-   We start with relatively simple models, realizing that the actual data science exercise of forecasting elections involves rather complex ones, which we introduce towards later.
+
+```{r, echo=FALSE, message=FALSE}
+set.seed(2)
+```
+
+## Poll aggregators
+
+-   How was Mr. Silver so confident in 2016?
+
+-   We will use a Monte Carlo simulation to illustrate the insight Mr. Silver had and others missed.
+
+-   To do this, we generate results for 12 polls taken the week before the election.
+
+-   We mimic sample sizes from actual polls and construct and report 95% confidence intervals for each of the 12 polls.
+
+## Poll aggregators
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dslabs)
+d <- 0.039
+Ns <- c(1298, 533, 1342, 897, 774, 254, 
+        812, 324, 1291, 1056, 2172, 516)
+p <- (d + 1) / 2
+
+polls <- map_df(Ns, function(N) {
+  x <- sample(c(0,1), size=N, replace=TRUE, prob=c(1-p, p))
+  x_hat <- mean(x)
+  se_hat <- sqrt(x_hat * (1 - x_hat) / N)
+  list(estimate = 2 * x_hat - 1, 
+    low = 2*(x_hat - 1.96*se_hat) - 1, 
+    high = 2*(x_hat + 1.96*se_hat) - 1,
+    sample_size = N)
+}) |> mutate(poll = seq_along(Ns))
+```
+
+## Poll aggregators
+
+Here is a visualization showing of the poll results:
+
+```{r simulated-polls, message=FALSE, echo=FALSE}
+ggplot(polls, aes(poll, estimate, ymin=low, ymax=high)) + 
+  geom_hline(yintercept = 0) + 
+  geom_point(col="#00B6EB")+
+  geom_errorbar(col="#00B6EB") + 
+  coord_flip() +
+  scale_x_continuous(breaks=c(1,ncol(polls))) +
+  scale_y_continuous(limits = c(-0.17, 0.17)) +
+  geom_hline(yintercept = 2*p-1, lty=2) 
+```
+
+## Poll aggregators
+
+-   Not surprisingly, all 12 polls report confidence intervals that include the election night result (dashed line).
+
+-   However, all 12 polls also include 0 (solid black line) as well.
+
+-   Therefore, if asked individually for a prediction, the pollsters would have to say: it's a toss-up.
+
+-   Below we describe a key insight they are missing.
+
+## Poll aggregators
+
+-   Poll aggregators, such as FiveThirtyEight, realized that by combining the results of different polls you could greatly improve precision.
+
+-   By doing this, we are effectively conducting a poll with a huge sample size.
+
+-   We can therefore report a smaller 95% confidence interval and a more precise prediction.
+
+## Poll aggregators
+
+-   Although as aggregators we do not have access to the raw poll data, we can use mathematics to reconstruct what we would have obtained had we made one large poll with this number of participants:
+
+```{r}
+sum(polls$sample_size)
+```
+
+## Poll aggregators
+
+-   Basically, we construct an estimate of the spread, let's call it $d$, with a weighted average in the following way:
+
+```{r}
+d_hat <- polls |> 
+  summarize(avg = sum(estimate*sample_size) / sum(sample_size)) |> 
+  pull(avg)
+```
+
+-   Once we have an estimate of $d$, we can construct an estimate for the proportion voting for Obama, which we can then use to estimate the standard error.
+
+## Poll aggregators
+
+-   Once we do this, we see that our margin of error is `r p_hat <- (1+d_hat)/2; moe <- 2*1.96*sqrt(p_hat*(1-p_hat)/sum(polls$sample_size)); signif(moe, 3)`.
+
+-   Thus, we can predict that the spread will be `r round(d_hat*100,1)` plus or minus `r round(moe*100 ,1)`, which not only includes the actual result we eventually observed on election night, but is quite far from including 0.
+
+-   Once we combine the 12 polls, we become quite certain that Obama will win the popular vote.
+
+## Poll aggregators
+
+```{r confidence-coverage-2008-election, echo=FALSE}
+p_hat <- (1+d_hat)/2
+moe <- 2*1.96*sqrt(p_hat*(1-p_hat)/sum(polls$sample_size))
+new_row <- tibble(d_hat, d_hat-moe, d_hat+moe, sum(polls$sample_size),13)
+names(new_row) <- names(polls)
+polls2 <- bind_rows(polls, new_row)
+polls2$poll<-as.character(polls2$poll);
+polls2$poll[13] <- "Avg"
+polls2$col <- as.character(c(rep(2,12),1))
+ggplot(polls2, aes(poll, estimate, ymin=low, ymax=high, color=col)) + 
+  geom_hline(yintercept = 0) + 
+  geom_point(show.legend = FALSE)+
+  geom_errorbar(show.legend = FALSE) + 
+  coord_flip() +
+  scale_y_continuous(limits = c(-0.17, 0.17)) +
+  geom_hline(yintercept = 2*p-1, lty=2) 
+```
+
+## Poll aggregators
+
+-   Of course, this was just a simulation to illustrate the idea.
+
+-   The actual real-world exercise of forecasting elections is much more complicated and it involves modeling.
+
+-   Below we explain how pollsters fit multilevel models to the data and use this to forecast election results.
+
+-   In the 2008 and 2012 US presidential elections, FiveThirtyEight used this approach to make an almost perfect prediction and silence the pundits.
+
+## Poll aggregators
+
+-   Since the 2008 elections, other organizations have started their own election forecasting group that, like FiveThirtyEight's, aggregates polling data and uses statistical models to make predictions.
+
+-   In 2016, forecasters underestimated Trump's chances of winning greatly.
+
+## Poll aggregators
+
+-   The day before the election the *New York Times* [reported](https://www.nytimes.com/interactive/2016/upshot/presidential-polls-forecast.html) the following probabilities for Hillary Clinton winning the presidency:
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics(file.path(img_path, "pollster-2016-predictions.png"))
+```
+
+## Poll aggregators
+
+-   For example, the Princeton Election Consortium (PEC) gave Trump less than 1% chance of winning, while the Huffington Post gave him a 2% chance.
+
+-   In contrast, FiveThirtyEight had Trump's probability of winning at 29%, higher than tossing two coins and getting two heads.
+
+-   In fact, four days before the election FiveThirtyEight published an article titled *Trump Is Just A Normal Polling Error Behind Clinton*[^1].
+
+-   By understanding statistical models and how these forecasters use them, we will start to understand how this happened.
+
+[^1]: <https://fivethirtyeight.com/features/trump-is-just-a-normal-polling-error-behind-clinton/>
+
+## Poll aggregators
+
+-   Although not nearly as interesting as predicting the electoral college, for illustrative purposes we will start by looking at predictions for the popular vote.
+
+-   FiveThirtyEight predicted a 3.6% advantage for [Clinton](https://projects.fivethirtyeight.com/2016-election-forecast/), included the actual result of 2.1% (48.2% to 46.1%) in their interval, and was much more confident about Clinton winning the election, giving her an 81.4% chance.
+
+## Poll aggregators
+
+Their prediction was summarized with a chart like this:
+
+```{r fivethirtyeight-densities, echo=FALSE, out.width="80%", fig.height=2}
+knitr::include_graphics(file.path(img_path, "popular-vote-538.png"))
+```
+
+## Poll aggregators
+
+-   We introduce actual data from the 2016 US presidential election to show how models are motivated and built to produce these predictions.
+
+-   To understand the "81.4% chance" statement we need to describe Bayesian statistics, which we do in the Bayesian Section
+
+## Poll data
+
+-   We use public polling data organized by FiveThirtyEight for the 2016 presidential election. The data is included as part of the **dslabs** package:
+
+```{r}
+data(polls_us_election_2016)
+```
+
+## Poll data
+
+-   The table includes results for national polls, as well as state polls, taken during the year prior to the election.
+
+-   For this first example, we will filter the data to include national polls conducted during the week before the election.
+
+-   We also remove polls that FiveThirtyEight has determined not to be reliable and graded with a "B" or less.
+
+-   Some polls have not been graded and we include those:
+
+## Poll data
+
+```{r}
+polls <- polls_us_election_2016 |> 
+  filter(state == "U.S." & enddate >= "2016-10-31" &
+           (grade %in% c("A+","A","A-","B+") | is.na(grade)))
+```
+
+## Poll data
+
+-   We add a spread estimate:
+
+```{r}
+polls <- polls |> 
+  mutate(spread = rawpoll_clinton/100 - rawpoll_trump/100)
+```
+
+## Poll data
+
+-   For this example, we will assume that there are only two parties and call $p$ the proportion voting for Clinton and $1-p$ the proportion voting for Trump.
+
+-   We are interested in the spread $2p-1$.
+
+-   Let's call the spread $d$ (for difference).
+
+## Poll data
+
+-   We have `r nrow(polls)` estimates of the spread.
+
+-   The theory we learned tells us that these estimates are a random variable with a probability distribution that is approximately normal.
+
+-   The expected value is the election night spread $d$ and the standard error is $2\sqrt{p (1 - p) / N}$.
+
+-   Assuming the urn model we described earlier is a good one, we can use this information to construct a confidence interval based on the aggregated data.
+
+## Poll data
+
+The estimated spread is:
+
+```{r}
+d_hat <- polls |> 
+  summarize(d_hat = sum(spread * samplesize) / sum(samplesize)) |> 
+  pull(d_hat)
+```
+
+and the standard error is:
+
+```{r}
+p_hat <- (d_hat+1)/2 
+moe <- 1.96 * 2 * sqrt(p_hat * (1 - p_hat) / sum(polls$samplesize))
+moe
+```
+
+## Poll data
+
+-   So we report a spread of `r round(d_hat*100,2)`% with a margin of error of `r round(moe*100,2)`%.
+
+-   On election night, we discover that the actual percentage was 2.1%, which is outside a 95% confidence interval.
+
+-   What happened?
+
+## Poll data
+
+-   A histogram of the reported spreads shows a problem:
+
+```{r polls-2016-spread-histogram, echo=FALSE}
+polls |>
+  ggplot(aes(spread)) +
+  geom_histogram(color="black", binwidth = .01)
+```
+
+## Poll data
+
+-   The data does not appear to be normally distributed and the standard error appears to be larger than `r moe`.
+
+-   The theory is not quite working here.
+
+## Pollster bias
+
+-   Notice that various pollsters are involved and some are taking several polls a week:
+
+```{r, eval=FALSE}
+polls |> group_by(pollster) |> summarize(n())
+```
+
+## Pollster bias
+
+Let's visualize the data for the pollsters that are regularly polling:
+
+```{r pollster-bias, echo=FALSE}
+polls |> group_by(pollster) |> 
+  filter(n() >= 6) |>
+  ggplot(aes(pollster, spread)) + 
+  geom_point() +
+  coord_flip()
+```
+
+## Pollster bias
+
+This plot reveals an unexpected result. First, consider that the standard error predicted by theory for each poll:
+
+```{r}
+polls |> group_by(pollster) |> 
+  filter(n() >= 6) |>
+  summarize(se = 2 * sqrt(p_hat * (1-p_hat) / median(samplesize)))
+```
+
+is between 0.018 and 0.033, which agrees with the within poll variation we see.
+
+## Pollster bias
+
+-   However, there appears to be differences *across the polls*.
+
+-   Note, for example, how the USC Dornsife/LA Times pollster is predicting a 4% win for Trump, while Ipsos is predicting a win larger than 5% for Clinton.
+
+-   The theory we learned says nothing about different pollsters producing polls with different expected values.
+
+-   All the polls should have the same expected value. FiveThirtyEight refers to these differences as "house effects". We also call them *pollster bias*.
+
+-   Next, rather than use the urn model theory, we are instead going to develop a data-driven model.
+
+## Data-driven models
+
+For each pollster, let's collect their last reported result before the election:
+
+```{r}
+one_poll_per_pollster <- polls |> group_by(pollster) |> 
+  filter(enddate == max(enddate)) |>
+  ungroup()
+```
+
+## Data-driven models
+
+Here is a histogram of the data for these `r nrow(one_poll_per_pollster)` pollsters:
+
+```{r pollster-bias-histogram}
+qplot(spread, data = one_poll_per_pollster, binwidth = 0.01)
+```
+
+## Data-driven models
+
+-   In the previous section, we saw that using the urn model theory to combine these results might not be appropriate due to the pollster effect.
+
+-   Instead, we will model this spread data directly.
+
+## Data-driven models
+
+-   The new model can also be thought of as an urn model, although the connection is not as direct.
+
+-   Rather than 0s (Republicans) and 1s (Democrats), our urn now contains poll results from all possible pollsters.
+
+-   We *assume* that the expected value of our urn is the actual spread $d=2p-1$.
+
+## Data-driven models
+
+-   Because instead of 0s and 1s, our urn contains continuous numbers between -1 and 1, the standard deviation of the urn is no longer $\sqrt{p(1-p)}$.
+
+-   Rather than voter sampling variability, the standard error now includes the pollster-to-pollster variability.
+
+## Data-driven models
+
+-   Our new urn also includes the sampling variability from the polling.
+
+-   Regardless, this standard deviation is now an unknown parameter.
+
+-   In statistics textbooks, the Greek symbol $\sigma$ is used to represent this parameter.
+
+-   In summary, we have two unknown parameters: the expected value $d$ and the standard deviation $\sigma$.
+
+## Data-driven models
+
+-   Our task is to estimate $d$.
+
+-   Because we model the observed values $X_1,\dots X_N$ as a random sample from the urn, the CLT might still work in this situation because it is an average of independent random variables.
+
+-   For a large enough sample size $N$, the probability distribution of the sample average $\bar{X}$ is approximately normal with expected value $\mu$ and standard error $\sigma/\sqrt{N}$.
+
+-   If we are willing to consider $N=15$ large enough, we can use this to construct confidence intervals.
+
+## Data-driven models
+
+-   A problem is that we don't know $\sigma$.
+
+-   But theory tells us that we can estimate the urn model $\sigma$ with the *sample standard deviation* defined as
+
+$$s = \sqrt{ \sum_{i=1}^N (X_i - \bar{X})^2 / (N-1)}$$
+
+## Data-driven models
+
+-   Unlike for the population standard deviation definition, we now divide by $N-1$.
+
+-   This makes $s$ a better estimate of $\sigma$.
+
+-   There is a mathematical explanation for this, which is explained in most statistics textbooks, but we don't cover it here.
+
+## Data-driven models
+
+-   The `sd` function in R computes the sample standard deviation:
+
+```{r}
+sd(one_poll_per_pollster$spread)
+```
+
+## Data-driven models
+
+-   We are now ready to form a new confidence interval based on our new data-driven model:
+
+```{r}
+results <- one_poll_per_pollster |> 
+  summarize(avg = mean(spread), 
+            se = sd(spread) / sqrt(length(spread))) |> 
+  mutate(start = avg - 1.96 * se, 
+         end = avg + 1.96 * se) 
+round(results * 100, 1)
+```
+
+## Data-driven models
+
+-   Our confidence interval is wider now since it incorporates the pollster variability.
+
+-   It does include the election night result of 2.1%.
+
+-   Also, note that it was small enough not to include 0, which means we were confident Clinton would win the popular vote.
+
+-   Are we now ready to declare a probability of Clinton winning the popular vote? Not yet.
+
+-   In our model $d$ is a fixed parameter so we can't talk about probabilities.
+
+-   To provide probabilities, we will need to learn about Bayesian statistics.
