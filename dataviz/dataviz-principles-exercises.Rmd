@@ -8,14 +8,14 @@ library(dslabs)
 data(us_contagious_diseases)
 ```
 
-1\. Pie charts are appropriate:
+1\. Pie charts are appropriate: A
 
 a. When we want to display percentages.
 b. When __ggplot2__ is not available.
 c. When I am in a bakery.
 d. Never. Barplots and tables are always better.
 
-2\. What is the problem with the plot below:
+2\. What is the problem with the plot below: B
 
 ```{r baplot-not-from-zero-exercises, echo=FALSE, message=FALSE}
 library(tidyverse)
@@ -57,7 +57,7 @@ p2 <- us_contagious_diseases |>
   xlab("")
 grid.arrange(p1, p2, ncol = 2)
 ```
-Which plot is easier to read if you are interested in determining which are the best and worst states in terms of rates, and why?
+Which plot is easier to read if you are interested in determining which are the best and worst states in terms of rates, and why? C
 
 a. They provide the same information, so they are both equally as good.
 b. The plot on the right is better because it orders the states alphabetically.
@@ -88,6 +88,9 @@ Define these objects:
 ```{r, eval=FALSE}
 state <- dat$state
 rate <- dat$count/dat$population*10000*52/dat$weeks_reporting
+
+state<-reorder(state,rate)
+levels(state)
 ```
 
 Redefine the `state` object so that the levels are re-ordered. Print the new object `state` and its levels so you can see that the vector is not re-ordered by the levels.
@@ -112,7 +115,7 @@ ylab("Murder Rate Average")
 ```
 
 
-and decide to move to a state in the western region. What is the main problem with this interpretation?
+and decide to move to a state in the western region. What is the main problem with this interpretation? C
 
 a. The categories are ordered alphabetically.
 b. The graph does not show standarad errors.
@@ -158,7 +161,7 @@ plot(x,z,col=group, pch=16)
 abline(v=2, col=3)
 ```
 
-Why is this happening?
+Why is this happening?A
 
 a. Humans are not good at reading pseudo-3D plots.
 b. There must be an error in the code.

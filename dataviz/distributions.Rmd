@@ -3,6 +3,7 @@ title: "Distributions"
 author: "Rafael A. Irizarry"
 date: "`r lubridate::today()`"
 output:
+  pdf_document
   ioslides_presentation:
     fig_caption: no
     fig_height: 6
@@ -218,6 +219,14 @@ p1 <- heights |>
   filter(sex=="Male")|> ggplot(aes(height)) +
   geom_histogram(aes(y=..density..), binwidth = 1, alpha = 0.5) + 
   geom_line(stat='density', adjust = 0.5)
+
+ heights |> 
+  filter(sex=="Male")|> ggplot(aes(height)) +
+  geom_histogram(aes(y=..density..), binwidth = 1, alpha = 0.5) + 
+  geom_line(stat='density', adjust = 1)
+
+####adjust
+# A multiplicate bandwidth adjustment. This makes it possible to adjust the bandwidth while still using the a bandwidth estimator. For example, adjust = 1/2 means use half of the default bandwidth.
 
 p2 <- heights |> 
   filter(sex=="Male") |> ggplot(aes(height)) +

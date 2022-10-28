@@ -154,6 +154,8 @@ Add a murders column named `rate` with the per 100,000 murder rate as in the exa
 murders[,":="(rate= total / population * 100000)]
 murders[,rank:=rank(-rate)]
 
+
+
 ```
 
 3\. If we want to only show the states and population sizes, we can use:
@@ -187,7 +189,7 @@ no_florida <- murders[state != "Florida"]
 Create a new data frame called `no_south` that removes states from the South region. How many states are in this category? You can use the function `nrow` for this.
 
 ```{r}
-
+no_south<-murders[region!="South"]
 ```
 
 6\. We can also use `%in%` to filter. You can therefore see the data from New York and Texas as follows:

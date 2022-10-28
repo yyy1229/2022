@@ -4,23 +4,82 @@
 1\. Suppose you poll a population in which a proportion $p$ of voters are Democrats and $1-p$ are Republicans. Your sample size is $N=25$. Consider the random variable $S$ which is the **total** number of Democrats in your sample. What is the expected value of this random variable? Hint: it's a function of $p$.
 
 
+S=N*p
 
+```{r}
+
+```
 
 2\. What is the standard error of $S$ ? Hint: it's a function of $p$.
+$\sqrt{(Npq)}$
 
 3\. Consider the random variable $S/N$. This is equivalent to the sample average, which we have been denoting as $\bar{X}$. What is the expected value of the $\bar{X}$? Hint: it's a function of $p$.
 
+p
+
 4\. What is the standard error of $\bar{X}$? Hint: it's a function of $p$.
+
+SE=\sqrt{p(1-p)/N}
 
 5\. Write a line of code that gives you the standard error `se` for the problem above for several values of $p$, specifically for `p <- seq(0, 1, length = 100)`. Make a plot of `se` versus `p`.
 
+```{r}
+p <- seq(0, 1, length = 100)
+dat<-data.frame(p=p,
+          se=sqrt(p*(1-p)/25 ))
+
+dat%>%
+  ggplot2::ggplot(aes(x=p,y=se))+
+  geom_point()
+```
+
+
 6\. Copy the code above and put it inside a for-loop to make the plot for $N=25$, $N=100$, and $N=1000$.
 
+
+```{r}
+p <- seq(0, 1, length = 100)
+dat<-NULL
+Nlist<-c(25,100,1000)
+for (n in Nlist){
+  
+temp<-data.frame(p=p,
+          se=sqrt(p*(1-p)/n ),
+          N=n)
+dat<-rbind(dat,temp)
+}
+
+dat%>%
+  ggplot2::ggplot(aes(x=p,y=se))+
+  geom_point()+
+  facet_wrap(~N)
+
+```
 7\. If we are interested in the difference in proportions, $p - (1-p)$, our estimate is $d = \bar{X} - (1-\bar{X})$. Use the rules we learned about sums of random variables and scaled random variables to derive the expected value of $d$.
+
+d=p-(1-p)=2p-1
 
 8\. What is the standard error of $d$?
 
+$$
+2*\sqrt{p(1-p)/N}
+$$
+
 9\. If the actual $p=.45$, it means the Republicans are winning by a relatively large margin since $d= -.1$, which is a 10% margin of victory. In this case, what is the standard error of $2\hat{X}-1$ if we take a sample of $N=25$?
+```{r}
+
+2*sqrt(0.45*0.55/N)
+B=10000
+poll<-function(N){
+  x<-sample(c(0,1), N, replace = TRUE, prob=c(0.55, 0.45))
+ 2*sum(x)/N-1
+}
+
+
+result<-replicate(B,poll(25))
+sd(result)
+
+```
 
 10\. Given the answer to 9, which of the following best describes your strategy of using a sample size of $N=25$?
 
@@ -28,3 +87,7 @@ a.  The expected value of our estimate $2\bar{X}-1$ is $d$, so our prediction wi
 b.  Our standard error is larger than the difference, so the chances of $2\bar{X}-1$ being positive and throwing us off were not that small. We should pick a larger sample size.
 c.  The difference is 10% and the standard error is about 0.2, therefore much smaller than the difference.
 d.  Because we don't know $p$, we have no way of knowing that making $N$ larger would actually improve our standard error.
+
+
+B
+

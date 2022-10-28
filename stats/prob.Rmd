@@ -1,3 +1,12 @@
+---
+title: "Probability"
+author: "Rafael A. Irizarry"
+date: "`r lubridate::today()`"
+output:
+  pdf_document
+---
+
+
 ## Intro to Probability 
 
 In games of chance, probability has a very intuitive definition. For instance, we know what it means that the chance of a pair of dice coming up seven is 1 in 6. However, this is not the case in other contexts. Today probability theory is being used much more broadly with the word _probability_ commonly used in everyday language. Google's auto-complete of "What are the chances of" give us: "having twins", "rain today", "getting struck by lightning", and "getting cancer". We will describre how probability is useful to understand and describe real-world events when performing data analysis.

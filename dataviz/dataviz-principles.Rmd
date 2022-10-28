@@ -9,9 +9,12 @@ output:
     fig_width: 7
   beamer_presentation: default
   slidy_presentation: default
+  
 ---
 
 ```{r setup, include=FALSE}
+#install.packages("webshot")
+webshot::install_phantomjs()
 library(tidyverse)
 library(dslabs)
 library(gridExtra)
@@ -271,7 +274,7 @@ knitr::include_graphics(file.path(img_path, "pyramid.jpg"))
 ## The only 2 piecharts I like
 
 ```{r echo=FALSE}
-knitr::include_graphics(file.path(img_path, "pacman.gif"))
+##knitr::include_graphics(file.path(img_path, "pacman.gif"))
 ```
 
 ## Know when to include 0

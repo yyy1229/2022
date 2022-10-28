@@ -4,6 +4,7 @@
 
 
 1\. Examine the built-in dataset `co2`. Which of the following is true:
+D
 
 a. `co2` is tidy data: it has one year for each row.
 b. `co2` is not tidy: we need at least one column with a character vector.
@@ -11,7 +12,19 @@ c. `co2` is not tidy:  it is a matrix instead of a data frame.
 d. `co2` is not tidy: to be tidy we would have to wrangle it to have three columns (year, month and value), then each co2 observation would have a row.
 
 
-2\. Examine the built-in dataset  `ChickWeight`. Which of the following is true:
+```{r}
+class(co2)
+co2
+class(CO2)
+names(CO2)
+head(CO2)
+
+```
+
+
+
+B,D
+2\. Examine the built-in dataset  `ChickWeight`. Which of the following is true: 
 
 a.  `ChickWeight` is not tidy: each chick has more than one row. 
 b.  `ChickWeight` is tidy: each observation (a weight) is represented by one row. The chick from which this measurement came is one of the variables.
@@ -19,12 +32,25 @@ c.  `ChickWeight` is not tidy: we are missing the year column.
 d.  `ChickWeight` is tidy: it is stored in a data frame.
 
 
-3\. Examine the built-in dataset `BOD`. Which of the following is true:
+```{r}
+class(ChickWeight)
+ChickWeight
+```
 
+
+
+3\. Examine the built-in dataset `BOD`. Which of the following is true:
+c
 a. `BOD` is not tidy: it only has six rows.
 b. `BOD` is not tidy: the first column is just an index.
 c. `BOD` is tidy: each row is an observation with two values (time and demand)
 d. `BOD` is tidy: all small datasets are tidy by definition.
+
+```{r}
+class(BOD)
+BOD
+
+```
 
 
 4\. Which of the following built-in datasets is tidy (you can pick more than one):
@@ -36,6 +62,13 @@ d. `Formaldehyde`
 e. `Orange`
 f. `UCBAdmissions`
 
+```{r}
+class(BJsales)
+class(EuStockMarkets)
+class(DNase)
+class(Formaldehyde)
+class(Orange)
+```
 
 
 ## Manipulating data frames
@@ -54,12 +87,15 @@ You can add columns using the __dplyr__ function `mutate`. This function is awar
 
 
 ```{r, eval=FALSE}
-murders <- mutate(murders, population_in_millions = population / 10^6)
+murders <- mutate(murders, population_in_millions = population / 10^6, rate=total/population_in_millions)
 ```
 
 We can write `population` rather than `murders$population`. The function `mutate` knows we are grabbing columns from `murders`.
 
 Use the function `mutate` to add a murders column named `rate` with the per 100,000 murder rate as in the example code above. Make sure you redefine `murders` as done in the example code above ( murders <- [your code]) so we can keep using this variable.
+```{r}
+
+```
 
 2\. If `rank(x)` gives you the ranks of `x` from lowest to highest, `rank(-x)` gives you the ranks from highest to lowest. Use the function `mutate` to add a column `rank` containing the rank, from highest to lowest murder rate. Make sure you redefine `murders` so we can keep using this variable.
 
@@ -171,7 +207,7 @@ Repeat the previous exercise, but now instead of creating a new object, show the
 data(murders)
 my_states <- murders |>
   mutate(rate = total/population*10^5, rank = rank(-rate)) |> 
-  filter((region=="West" | region === "Northeast") & rate < 1) |> 
+  filter((region=="West" | region == "Northeast") & rate < 1) |> 
   select(state, rate, rank)
 my_states
 ```
@@ -240,16 +276,60 @@ b. `murders` is in tidy format and is stored in a data frame.
 c. `murders` is not in tidy format and is stored in a tibble.
 d. `murders` is not in tidy format and is stored in a data frame.
     
+```{r}
+data(murders)
+murders
+class(murders)
+setDT(murders)
+class(murders)
+murders
+```
+    
+    
 2\. Use `as_tibble` to convert the `murders` data table into a tibble and save it in an object called `murders_tibble`.
+```{r}
+murders_tibble<-as_tibble(murders)
+class(murders_tibble)
+```
     
 3\. Use the `group_by` function to convert `murders` into a tibble that is grouped by region.
+```{r}
+murders_tibble<-
+ as_tibble( murders%>%
+  group_by(region))
+class(murders_tibble)
+```
 
 4\. Write tidyverse code that is equivalent to this code:
     
 ```{r, eval=FALSE}
 exp(mean(log(murders$population)))
+murders%>%
+  summarise(exp(mean(log(population))))
+
+
 ```
 
 Write it using the pipe so that each function is called without arguments. Use the dot operator to access the population. Hint: The code should start with `murders |>`.
+```{r}
+murders %>%
+  summarise_at(vars(population),~mean(.,na.rm=TRUE))
+```
     
 5\. Use the `map_df` to create a data frame with three columns named `n`, `s_n`, and `s_n_2`. The first column should contain the numbers 1 through 100. The second and third columns should each contain the sum of 1 through $n$ with $n$ the row number.  
+
+```{r}
+
+N<-function(n){
+seq=seq(1,n)
+s_n=sum(seq)
+
+tibble(n=n,
+       s_n=s_n,
+       s_n_2=s_n)
+}
+n=1:100
+
+map_df(n,N)
+```
+

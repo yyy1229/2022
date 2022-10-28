@@ -3,36 +3,102 @@
 
 1\. In American Roulette you can also bet on green. There are 18 reds, 18 blacks and 2 greens (0 and 00). What are the chances the green comes out?
 
+```{r}
+
+pg=2/(18+18+2)
+pg
+```
+
 
 2\. The payout for winning on green is \$17 dollars. This means that if you bet a dollar and it lands on green, you get \$17. Create a sampling model using sample to simulate the random variable $X$ for your winnings. Hint: see the example below for how it should look like when betting on red.
 
 ```{r}
 x <- sample(c(1,-1), 1, prob = c(9/19, 10/19))
+B=100000
+green<-function(N)
+  {x <- sample(c(-1,17), N, prob = c(1-pg, pg))
+ sum(x)
+}
+mean(replicate(B,green(1)))
+sd((replicate(B,green(1))))
+
 ```
 
 3\. Compute the expected value of $X$.
+```{r}
+17*pg-1*(1-pg)
+```
 
 
 4\. Compute the standard error of $X$.
 
+```{r}
+18*sqrt(pg*(1-pg))
+
+```
+
     
 5\. Now create a random variable $S$ that is the sum of your winnings after betting on green 1000 times. Hint: change the argument `size` and `replace` in your answer to question 2. Start your code by setting the seed to 1 with `set.seed(1)`.
 
+```{r}
+set.seed(1)
+
+B=100000
+N=1000
+green<-function(N)
+  {x <- sample(c(-1,17), N,replace = TRUE, prob = c(1-pg, pg))
+ sum(x)
+}
+mean(replicate(B,green(1)))
+sd((replicate(B,green(1))))
+
+```
+
+
 6\. What is the expected value of $S$?
+```{r}
+eS=N*(17*pg-1*(1-pg))
+eS
+```
 
 
 7\. What is the standard error of $S$?
 
+```{r}
+S_sd=sqrt(N)*(18*sqrt(pg*(1-pg)))
+S_sd
+```
 
 8\. What is the probability that you end up winning money? Hint: use the CLT.
+```{r}
+1-pnorm(0,eS,S_sd)
+```
 
 
 9\. Create a Monte Carlo simulation that generates 1,000 outcomes of $S$. Compute the average and standard deviation of the resulting list to confirm the results of 6 and 7. Start your code by setting the seed to 1 with `set.seed(1)`.
 
+```{r}
+
+B=1000
+N=1000
+green<-function(N)
+  {
+  x <- sample(c(-1,17), N,replace = TRUE, prob = c(1-pg, pg))
+ sum(x)
+}
+set.seed(1)
+resul<-replicate(B,green(N))
+mean(resul)
+sd(resul)
+```
 
 
 
 10\. Now check your answer to 8 using the Monte Carlo result. 
+```{r}
+sum(resul>0)/length(resul)
+```
+
 
 11\. The Monte Carlo result and the CLT approximation are close, but not that close. What could account for this?
 
@@ -41,17 +107,60 @@ b. The CLT does not work as well when the probability of success is small. In th
 c. The difference is within rounding error.
 d. The CLT only works for averages.
 
+```{r}
+A
+```
+
 
 12\. Now create a random variable $Y$ that is your average winnings per bet after playing off your winnings after betting on green 1,000 times.
 
+```{r}
+set.seed(1)
+n <- 1000
+X <- sample(c(17,-1), n, replace = TRUE, prob=c(1/19, 18/19))
+Y <- mean(X)
+```
+
+
 13\. What is the expected value of $Y$?
+
+```{r}
+Y_m<-17*pg-1*(1-pg)
+Y_m
+```
 
 14\. What is the standard error of $Y$?
 
+```{r}
+Y_sd<-(18*sqrt(pg*(1-pg)))/sqrt(N)
+Y_sd
+```
+
+
 15\. What is the probability that you end up with winnings per game that are positive? Hint: use the CLT.
+```{r}
+1-pnorm(0,Y_m,Y_sd,)
+```
 
 
 16\. Create a Monte Carlo simulation that generates 2,500 outcomes of $Y$. Compute the average and standard deviation of the resulting list to confirm the results of 6 and 7. Start your code by setting the seed to 1 with `set.seed(1)`.
+```{r}
+
+
+B=2500
+N=1000
+green<-function(N)
+  {
+  x <- sample(c(-1,17), N,replace = TRUE, prob = c(1-pg, pg))
+ mean(x)
+}
+set.seed(1)
+resul<-replicate(B,green(N))
+mean(resul)
+sd(resul)
+```
+
+
 
 17\. Now check your answer to 8 using the Monte Carlo result. 
 
@@ -61,4 +170,10 @@ a. We are now computing averages instead of sums.
 b. 2,500 Monte Carlo simulations is not better than 1,000.
 c. The CLT works better when the sample size is larger. We increased from 1,000 to 2,500.
 d. It is not closer. The difference is within rounding error.
+
+
+C
+
+
+
 
