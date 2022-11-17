@@ -3,13 +3,7 @@ title: "Joining Tables"
 author: "Rafael A. Irizarry"
 date: "`r lubridate::today()`"
 output:
-  ioslides_presentation:
-    fig_caption: no
-    fig_height: 5
-    fig_width: 7
-    out_width: "70%"
-  beamer_presentation: default
-  slidy_presentation: default
+  pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -276,6 +270,7 @@ tab_1 <- tab[, 1:3]
 tab_2 <- tab[, 4:6] 
 tab_3 <- tab[, 7:8] 
 new_tab <- bind_cols(tab_1, tab_2, tab_3) 
+cbind(tab_1,tab_2,tab_3)
 head(new_tab) 
 ```
 
@@ -327,6 +322,7 @@ intersect(c("a","b","c"), c("b","c","d"))
 tab_1 <- tab[1:5,] 
 tab_2 <- tab[3:7,] 
 dplyr::intersect(tab_1, tab_2) 
+
 ```
 
 ## Union

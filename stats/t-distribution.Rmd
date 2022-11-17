@@ -111,7 +111,10 @@ one_poll_per_pollster |>
 
 ```{r poll-spread-qq-2, echo=FALSE}
 one_poll_per_pollster |> 
-  ggplot(aes(sample=spread)) + stat_qq() 
+  ggplot(aes(sample=spread)) + stat_qq() +stat_qq_line()
+nrow(one_poll_per_pollster)-1
+one_poll_per_pollster |> 
+  ggplot(aes(sample=spread)) + stat_qq(distribution = qt, dparams = 14) +stat_qq_line(distribution = qt, dparams = 14)
 ```
 
 ## The t-distribution
